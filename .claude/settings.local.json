@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"タスク管理: GitHub Issues連携とActions自動クローズ設定:*)",
+      "Bash(git push:*)",
+      "Bash(git -C /c/Code/ChartVideoCreater log --oneline -10)"
+    ]
+  }
+}
