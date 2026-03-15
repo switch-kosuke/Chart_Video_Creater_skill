@@ -5,9 +5,14 @@ from datetime import date
 from pathlib import Path
 
 try:
-    from moviepy.editor import VideoFileClip  # type: ignore
-except ImportError:  # pragma: no cover
-    VideoFileClip = None  # type: ignore
+    from moviepy import VideoFileClip, vfx  # type: ignore  (moviepy v2)
+except ImportError:
+    try:
+        from moviepy.editor import VideoFileClip  # type: ignore  (moviepy v1)
+        vfx = None  # type: ignore
+    except ImportError:  # pragma: no cover
+        VideoFileClip = None  # type: ignore
+        vfx = None  # type: ignore
 
 
 class VideoRenderer:
@@ -28,15 +33,9 @@ class VideoRenderer:
 
         clip = VideoFileClip(str(temp_path))
         duration = clip.duration
-        clip = clip.fadein(fade_duration).fadeout(fade_duration)
+        clip = self._apply_fade(clip, fade_duration)
 
-        bitrate = f"{self._DEFAULT_BITRATE_KBPS}k"
-        clip.write_videofile(
-            str(output_path),
-            codec="libx264",
-            bitrate=bitrate,
-            logger=None,
-        )
+        self._write_video(clip, str(output_path), self._DEFAULT_BITRATE_KBPS)
         clip.close()
 
         # ファイルサイズが 20MB 超なら自動的にビットレートを下げて再エンコード
@@ -59,17 +58,39 @@ class VideoRenderer:
 
         return output_path
 
+    def _apply_fade(self, clip, duration: float):
+        """moviepy v1/v2 両対応でフェードイン・アウトを適用する。"""
+        if vfx is not None:
+            # moviepy v2
+            clip = clip.with_effects([vfx.FadeIn(duration), vfx.FadeOut(duration)])
+        else:
+            # moviepy v1
+            clip = clip.fadein(duration).fadeout(duration)
+        return clip
+
+    def _write_video(self, clip, path: str, bitrate_kbps: int) -> None:
+        """moviepy v1/v2 両対応で動画を書き出す。"""
+        if vfx is not None:
+            # moviepy v2: bitrate は ffmpeg_params で指定
+            clip.write_videofile(
+                path,
+                codec="libx264",
+                ffmpeg_params=["-b:v", f"{bitrate_kbps}k"],
+                logger=None,
+            )
+        else:
+            # moviepy v1
+            clip.write_videofile(
+                path,
+                codec="libx264",
+                bitrate=f"{bitrate_kbps}k",
+                logger=None,
+            )
+        clip.close()
+
     def _reencode_smaller(self, output_path: Path, current_size_mb: float) -> None:
         """ビットレートを自動調整して output_path を上書き再エンコードする。"""
         ratio = self.MAX_FILE_SIZE_MB / current_size_mb
         new_bitrate_kbps = int(self._DEFAULT_BITRATE_KBPS * ratio * 0.9)  # 10% マージン
-        new_bitrate = f"{new_bitrate_kbps}k"
-
         clip = VideoFileClip(str(output_path))
-        clip.write_videofile(
-            str(output_path),
-            codec="libx264",
-            bitrate=new_bitrate,
-            logger=None,
-        )
-        clip.close()
+        self._write_video(clip, str(output_path), new_bitrate_kbps)

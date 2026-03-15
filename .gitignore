@@ -3,5 +3,7 @@ __pycache__/
 *.pyo
 .env
 output/*.mp4
+output/*/*.mp4
 output/tmp/
 *.log
+.venv/

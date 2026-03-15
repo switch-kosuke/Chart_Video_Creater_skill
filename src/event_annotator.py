@@ -10,8 +10,9 @@ import pandas as pd
 @dataclass
 class EventAnnotation:
     frame: int
-    category: str
+    period: str
     text: str
+    category: str = ""
 
 
 # 表示パラメータ（フレーム数） — 合計30フレーム（1秒@30fps）
@@ -40,15 +41,35 @@ class EventAnnotator:
             for idx, period in enumerate(time_index)
         }
 
+        # 数値近傍マッチ用
+        try:
+            time_index_nums = [float(t) for t in time_index]
+            numeric_mode = True
+        except (ValueError, TypeError):
+            numeric_mode = False
+
         result: list[EventAnnotation] = []
         for _, row in df.iterrows():
             period = str(row["period"])
-            if period not in period_to_frame:
+            if period in period_to_frame:
+                matched_period = period
+                frame = period_to_frame[period]
+            elif numeric_mode:
+                try:
+                    ev_num = float(period)
+                    nearest_idx = min(range(len(time_index_nums)),
+                                      key=lambda i: abs(time_index_nums[i] - ev_num))
+                    matched_period = time_index[nearest_idx]
+                    frame = period_to_frame[matched_period]
+                except (ValueError, KeyError):
+                    continue
+            else:
                 continue
             result.append(EventAnnotation(
-                frame=period_to_frame[period],
-                category=str(row["category"]),
+                frame=frame,
+                period=matched_period,
                 text=str(row["text"]),
+                category=str(row["category"]) if "category" in df.columns else "",
             ))
 
         if result:

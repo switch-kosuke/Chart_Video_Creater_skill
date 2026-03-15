@@ -61,7 +61,8 @@ class VideoApp:
             )
 
             # 5. 動画生成
-            tmp_dir = self._output_dir / "tmp"
+            project_dir = self._output_dir / csv_path.stem
+            tmp_dir = project_dir / "tmp"
             tmp_dir.mkdir(parents=True, exist_ok=True)
             tmp_path = tmp_dir / f"{csv_path.stem}_tmp.mp4"
             print("\n🎨 動画生成中...")
@@ -74,7 +75,7 @@ class VideoApp:
 
             # 6. フェード効果・最終出力
             print("🎞️  フェード効果を適用中...")
-            self._renderer.render(tmp_path, self._output_dir, csv_path.stem)
+            self._renderer.render(tmp_path, project_dir, csv_path.stem)
 
         except CSVScanError as e:
             print(f"\n❌ CSVエラー: {e}", file=sys.stderr)
