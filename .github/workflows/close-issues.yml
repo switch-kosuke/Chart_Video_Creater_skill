@@ -1,0 +1,48 @@
+name: タスク完了時にIssueを自動クローズ
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.kiro/specs/csv-chart-short-video/tasks.md'
+
+jobs:
+  close-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 完了タスクに紐づくIssueをクローズ
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          # tasks.md の差分から新たに [x] になった行を抽出
+          DIFF=$(git diff HEAD~1 HEAD -- .kiro/specs/csv-chart-short-video/tasks.md)
+
+          # 追加された行（+で始まる）かつ [x] チェック済みの行を取得
+          CLOSED_LINES=$(echo "$DIFF" | grep '^+- \[x\]')
+
+          if [ -z "$CLOSED_LINES" ]; then
+            echo "新たに完了したタスクはありません。"
+            exit 0
+          fi
+
+          echo "完了タスク:"
+          echo "$CLOSED_LINES"
+
+          # <!-- Closes #N --> コメントからIssue番号を抽出してクローズ
+          echo "$CLOSED_LINES" | grep -oP 'Closes #\K[0-9]+' | while read -r issue_num; do
+            echo "Issue #$issue_num をクローズします..."
+            gh issue close "$issue_num" \
+              --repo "$REPO" \
+              --comment "✅ tasks.md でタスクが完了マーク（\`[x]\`）されたため自動クローズしました。" \
+              && echo "Issue #$issue_num をクローズしました。" \
+              || echo "Issue #$issue_num のクローズに失敗しました（既にクローズ済みの可能性があります）。"
+          done
