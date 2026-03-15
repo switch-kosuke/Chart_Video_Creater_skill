@@ -6,7 +6,7 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch, call
 
-from src.data_analyzer import ChartRecommendation, ChartType
+from src.models import ChartRecommendation, ChartType
 from src.theme_manager import ThemeManager
 from src.chart_generator import ChartGenerator, VideoConfig
 

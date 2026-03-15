@@ -15,7 +15,7 @@ from matplotlib.animation import FuncAnimation, FFMpegWriter
 
 import bar_chart_race as bcr
 
-from src.data_analyzer import ChartRecommendation, ChartType
+from src.models import ChartRecommendation, ChartType
 from src.theme_manager import ThemeConfig
 
 
