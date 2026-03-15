@@ -87,13 +87,13 @@
 
 ---
 
-- [ ] 7. ビデオレンダラーの実装
-- [ ] 7.1 フェードイン・アウト効果の適用 <!-- Closes #10 -->
+- [x] 7. ビデオレンダラーの実装
+- [x] 7.1 フェードイン・アウト効果の適用 <!-- Closes #10 -->
   - `moviepy` を使ってチャートジェネレーターが出力した一時MP4の冒頭・末尾にフェードイン・アウト（各0.5秒）を適用する
   - フェード処理後に `output/tmp/` の一時ファイルを削除する
   - _Requirements: 4.4_
 
-- [ ] 7.2 MP4最終出力とファイルサイズ最適化 <!-- Closes #11 -->
+- [x] 7.2 MP4最終出力とファイルサイズ最適化 <!-- Closes #11 -->
   - `output/{CSVファイル名}_{YYYYMMDD}.mp4` の形式でファイル名を自動生成して保存する
   - `output/` ディレクトリが存在しない場合は自動作成する
   - H.264コーデック（`libx264`）・ビットレート3000kbpsでエンコードする
@@ -103,14 +103,14 @@
 
 ---
 
-- [ ] 8. VideoAppオーケストレーターの実装
-- [ ] 8.1 インタラクティブCLIフローの実装 <!-- Closes #12 -->
+- [x] 8. VideoAppオーケストレーターの実装
+- [x] 8.1 インタラクティブCLIフローの実装 <!-- Closes #12 -->
   - CSV選択 → AI分析・チャートタイプ確認 → テーマ選択 → 動画生成 → 完了表示の順でフローを実装する
   - 各ステップで番号付き選択肢を表示し、スキップ時はデフォルト値で続行できるUIを実装する
   - 無効な入力値に対してエラーメッセージと有効範囲を表示して再入力を促す
   - _Requirements: 7.2, 7.3, 7.4_
 
-- [ ] 8.2 全コンポーネントの統合と進捗表示 <!-- Closes #13 -->
+- [x] 8.2 全コンポーネントの統合と進捗表示 <!-- Closes #13 -->
   - CSVScanner・DataAnalyzer・ThemeManager・ChartGenerator・EventAnnotator・VideoRenderer を順次呼び出す処理をつなぎ合わせる
   - 動画生成中の進捗状況をプログレスバー形式（`████░░ 60%`）でリアルタイム表示する
   - カスタム例外（`CSVScanError`, `AnalysisError`, `RenderingError`）をキャッチしてユーザーフレンドリーなエラーメッセージと解決策を表示する
@@ -118,8 +118,8 @@
 
 ---
 
-- [ ] 9. (P) Claude Codeスキルの定義
-- [ ] 9.1 スキルファイルの作成と動作確認 <!-- Closes #14 -->
+- [x] 9. (P) Claude Codeスキルの定義
+- [x] 9.1 スキルファイルの作成と動作確認 <!-- Closes #14 -->
   - `.claude/skills/create-chart-video/SKILL.md` を作成し、フロントマター（`name`, `description`, `allowed-tools`）を定義する
   - スキル実行時に `main.py` を呼び出すBashコマンドを記述する
   - Python環境・ライブラリが未インストールの場合に `pip install -r requirements.txt` のセットアップ手順を案内するチェック処理を追加する
@@ -127,20 +127,20 @@
 
 ---
 
-- [ ] 10. 統合テストとE2E検証
-- [ ] 10.1 コンポーネント統合テスト <!-- Closes #15 -->
+- [x] 10. 統合テストとE2E検証
+- [x] 10.1 コンポーネント統合テスト <!-- Closes #15 -->
   - CSVScanner → DataAnalyzer の流れで実CSV読み込みから推薦取得までを検証する
   - DataAnalyzer → ChartGenerator の流れで推薦結果から一時MP4生成までを検証する
   - ChartGenerator → EventAnnotator → VideoRenderer の流れで吹き出し付き最終MP4出力を検証する
   - _Requirements: 1.4, 2.1, 4.1, 5.1, 6.1_
 
-- [ ] 10.2 E2Eテスト（サンプルCSVでの動画生成確認） <!-- Closes #16 -->
+- [x] 10.2 E2Eテスト（サンプルCSVでの動画生成確認） <!-- Closes #16 -->
   - 月次ランキングデータのサンプルCSVと events.csv を用意してスキル実行からMP4生成までの全フローを検証する
   - 出力MP4が縦型1080×1920px・30fps・20MB以下であることを確認する
   - bar_race / animated_bar / animated_line の各チャートタイプで正常生成を確認する
   - _Requirements: 4.3, 4.5, 5.5, 6.2_
 
-- [ ]* 10.3 ユニットテストの整備（オプション・MVP後） <!-- Closes #17 -->
+- [x] 10.3 ユニットテストの整備（オプション・MVP後） <!-- Closes #17 -->
   - CSVScanner の UTF-8/Shift-JIS 自動検出・空ディレクトリ・不正CSV各ケースをユニットテストで網羅する
   - DataAnalyzer のモックAPI応答パース・フォールバック動作をユニットテストで検証する
   - ThemeManager の全テーマ取得・無効名エラーをユニットテストで検証する
